@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./Login.css";
 import assets from "../../assets/assets";
-import { signup } from "../../config/firebase";
+import { signup, login } from "../../config/firebase";
 
 const Login = () => {
   const [currState, setCurrState] = useState("Sign Up");
@@ -14,6 +14,8 @@ const Login = () => {
     console.log("Form Submitted", { userName, email, password });
     if (currState === "Sign Up") {
       signup(userName, email, password);
+    } else {
+      login(email, password);
     }
   }  
 
