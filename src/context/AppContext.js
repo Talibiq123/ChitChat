@@ -1,5 +1,5 @@
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { createContext, useState } from "react";
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
+import { createContext, useEffect, useState } from "react";
 import { auth, db } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 
@@ -8,7 +8,7 @@ export const AppContext = createContext();
 const AppContextProvider = (props) => {
 
     const navigate = useNavigate();
-    const [userData, setuserData] = useState(null);
+    const [userData, setUserData] = useState(null);
     const [chatData, setChatData] = useState(null);
 
     const loadUserData = async (uid) => {
@@ -17,7 +17,7 @@ const AppContextProvider = (props) => {
             const userSnap = await getDoc(userRef);
             const userData = userSnap.data();
             // console.log(userData);
-            setuserData(userData);
+            setUserData(userData);
             if (userData.avatar && userData.name) {
                 navigate('/chat')
             } else {
@@ -38,8 +38,17 @@ const AppContextProvider = (props) => {
         }
     }
 
+    useEffect(() => {
+        if (userData) {
+            const chatRef = doc(db, 'chats', userData.id);
+            const unSub = onSnapshot(chatRef, async (res) => {
+                const chatItems = res.data().chatData
+            })
+        }
+    }, [userData])
+
     const value = {
-        userData, setuserData,
+        userData, setUserData,
         chatData, setChatData,
         loadUserData
     }
