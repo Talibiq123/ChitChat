@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import "./LeftSidebar.css";
 import assets from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { AppContext } from "../../context/AppContext";
 
 const LeftSidebar = () => {
 
   const navigate = useNavigate();
+  const {userData} = useContext(AppContext);
 
   const inputhandler = async (e) => {
     try {
@@ -15,8 +17,8 @@ const LeftSidebar = () => {
       const userRef = collection(db, 'users');
       const q = query(userRef, where("username", "==", input.toLowerCase()));
       const querySnap = await getDocs(q);
-      if (!querySnap.empty) {
-        console.log(querySnap.doc[0].data());
+      if (!querySnap.empty && querySnap.docs[0].data().id !== userData.id) {
+        console.log(querySnap.docs[0].data());
       }
     } catch (error) {
       
