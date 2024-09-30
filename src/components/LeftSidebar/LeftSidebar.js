@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 const LeftSidebar = () => {
 
   const navigate = useNavigate();
-  const {userData} = useContext(AppContext);
+  const {userData, chatData, chatUser, setChatUser, setMessageId, messageId} = useContext(AppContext);
   const [user, setUser] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
 
@@ -23,7 +23,15 @@ const LeftSidebar = () => {
         const q = query(userRef, where("username", "==", input.toLowerCase()));
         const querySnap = await getDocs(q);
         if (!querySnap.empty && querySnap.docs[0].data().id !== userData.id) {
-          setUser(querySnap.docs[0].data());
+          let userExit = false;
+          chatData.map((user) => {
+            if (user.rId === querySnap.docs[0].data().id) {
+              userExit = true;
+            }
+          })
+          if (!userExit) {
+            setUser(querySnap.docs[0].data());
+          } 
         } else {
           setUser(null);
         }
@@ -71,6 +79,11 @@ const LeftSidebar = () => {
     }
   }
 
+  const setChat = async (item) => {
+    setMessageId(item.messageId);
+    setChatUser(item);
+  }
+
   return (
     <div className="ls">
       <div className="ls-top">
@@ -98,14 +111,13 @@ const LeftSidebar = () => {
           <p>{user.name}</p>
         </div>
         :
-        Array(12)
-          .fill("")
+        chatData
           .map((item, index) => (
-            <div key={index} className="friends">
-              <img src={assets.profile_img} alt="Profile" />
+            <div onClick={() => setChat(item)} key={index} className="friends">
+              <img src={userData.avatar} alt="Profile" />
               <div>
-                <p>Richard Sanford</p>
-                <span>Hello, How are you?</span>
+                <p>{item.userData.name}</p>
+                <span>{item.lastMessage}</span>
               </div>
             </div>
           ))
